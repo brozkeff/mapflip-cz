@@ -1,6 +1,8 @@
 package de.goork.mapflip
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -11,6 +13,9 @@ import de.goork.mapflip.analytics.Analytics
 import de.goork.mapflip.data.PreferencesRepository
 import de.goork.mapflip.navigation.NavigationIntentBuilder
 import de.goork.mapflip.parser.UniversalMapParser
+import de.goork.mapflip.parser.MapyLinkResolver
+import de.goork.mapflip.parser.MapyMapsParser
+import de.goork.mapflip.parser.ParsedLocation
 
 /**
  * Transparent activity that silently intercepts and redirects map links (Apple, Bing, OSM, Yandex)
@@ -18,11 +23,14 @@ import de.goork.mapflip.parser.UniversalMapParser
  *
  * If MapFlip is paused by the user, it forwards the original URL directly to a web browser.
  */
-class RedirectActivity : Activity() {
+class RedirectActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch { redirect() }
+    }
 
+    private suspend fun redirect() {
         val repository = PreferencesRepository.getInstance(this)
         val isPaused = repository.isCurrentlyPaused()
         val incomingUri = intent?.data
@@ -48,7 +56,13 @@ class RedirectActivity : Activity() {
                 Analytics.trackEvent("redirect_paused", mapOf("source_service" to sourceService))
                 forwardOriginalUrl(dataUri)
             } else {
-                val parsedLocation = UniversalMapParser.parse(mapUrl)
+                val parsedLocation = MapyLinkResolver.parse(mapUrl)
+                if (MapyMapsParser.canParse(mapUrl) && parsedLocation is ParsedLocation.WebFallback) {
+                    forwardOriginalUrl(dataUri)
+                    finish()
+                    suppressTransitionAnimation()
+                    return
+                }
                 val targetApp = repository.getTargetApp()
                 val isTargetInstalled = targetApp.isInstalled(this)
                 val effectiveTargetApp = if (isTargetInstalled) {

@@ -1,3 +1,12 @@
+## 1.4.0-alpha.1 — 2026-10-03
+
+- Unterstützung für Koordinaten-, Such- und dokumentierte Routen-URLs von Mapy.com / ehemals Mapy.cz ergänzt.
+- Separate `online`-Variante ohne Telemetrie zum Auflösen von Kurzlinks über begrenzte HTTPS-GET-Anfragen mit mobilem Chrome-User-Agent hinzugefügt. Die F-Droid-Variante `foss` bleibt offline.
+- Mapy-Links über Link-Erkennung, Zwischenablage und Link-Tester unterstützt; macOS-Einrichtung für Java, Kotlin und den Android-Emulator dokumentiert.
+- Nicht unterstützte Orts-IDs, kodierte ältere Routen, geteilte Sammlungen und Routen mit Zwischenstopps öffnen weiterhin den Browser; vollständige Umwandlung bleibt geplant.
+- Google-Play-Uploads deaktiviert und Workflow sowie Skript-Code zur Veröffentlichung von Store-Einträgen entfernt. Die Daten bleiben für die lokale Metadatenerzeugung verfügbar.
+- Mitverfasst von Codex GPT 6.1 Sol.
+
 ## 1.3.2
 - Verbesserte Lokalisierung: Vollständige Übersetzungen für alle 20 Sprachen und optimierte Erkennung norwegischer Systemsprachen
 - Erhöhte Stabilität: Robuste Validierung von Geokoordinaten und sicheres Fallback bei beschädigten Karten-Links

@@ -36,6 +36,7 @@ Set it up once, and it works invisibly in the background.
   - **Yandex Maps** (`yandex.com/maps`, `maps.yandex.ru`)
   - **Waze** (`waze.com/ul`, `waze.com/live-map`)
   - **DuckDuckGo Maps** (`duckduckgo.com/?q=...&iaxm=maps`)
+  - **Mapy.com / Mapy.cz** (Seznam.cz): coordinate, search, and documented route URLs; `/s/...` short links resolve in the separate `online` build.
   - **Google Plus Codes** (100% offline Base20 decoding)
   - **Direct GPS Coordinates** (RFC 5870 `geo:`, decimal & DMS)
 - 🎯 **Configurable Target Apps** – Route destinations directly to 12 navigation apps:
@@ -61,6 +62,7 @@ Set it up once, and it works invisibly in the background.
 - 🔒 **Privacy-First Architecture**:
   - **FOSS Flavor**: 100% offline, zero internet permission in manifest (`android.permission.INTERNET` not declared), zero tracking, zero ads.
   - **Play Flavor**: Minimal anonymous telemetry via self-hosted Aptabase (app version, OS, event names; zero personal data or location coordinates).
+  - **Online Flavor**: No telemetry; internet access only for Mapy link redirects. Installs alongside FOSS as `de.goork.mapflip.online`.
 - 🌍 **20 Languages + Auto (RTL supported)** – English, German, Spanish, French, Italian, Japanese, Dutch, Danish, Norwegian, Polish, Portuguese (Brazil & Portugal), Swedish, Turkish, Korean, Simplified Chinese, Traditional Chinese, Arabic (RTL), Russian, and Indonesian.
 
 ---
@@ -85,9 +87,18 @@ Set it up once, and it works invisibly in the background.
 
 ## 🛠️ Build & Development
 
-The project is split into two flavors:
+See [macOS Java, Kotlin, and emulator setup](docs/DEVELOPMENT.md) for Homebrew installation and a local Android 16 virtual device.
+
+Google Play uploads and store-listing publishing are disabled in this fork. Prereleases are published explicitly to GitHub with installable APKs.
+
+The project is split into three flavors:
 - `foss` – 100% open source, zero permissions, independent of Google services.
 - `play` – Google Play release flavor with rating prompts and self-hosted privacy-focused telemetry.
+- `online` – Separate network-enabled target for Mapy.com / former Mapy.cz short links, without telemetry. F-Droid continues to use `foss`.
+
+Build the network-enabled APK with `./gradlew :app:assembleOnlineDebug` (or `assembleOnlineRelease`). Direct Mapy coordinates (`x`/`y`, `source=coor&id=lon,lat`, `center=lon,lat`), searches, and `/fnc/v1/route` endpoints parse offline in all flavors. Opening a short link in `online` follows bounded HTTPS redirects on Mapy hosts. Unsupported place IDs, encoded legacy routes, routes with waypoints, expired links, and resolution failures open the original URL in a browser; map-center coordinates are never substituted for a selected place. Clipboard and link-tester launches use the same resolver; previews do not make network requests.
+
+Reference: [Mapy URL formats](https://developer.mapy.com/cs/dalsi-vyuziti-mapy-cz/url-mapy-cz/) and [short-link sharing](https://help.mapy.com/tools/print-save-share/).
 
 Build the FOSS release APK locally:
 ```bash
@@ -105,7 +116,7 @@ Run unit tests:
 
 - **UI & Runtime**: Kotlin & Jetpack Compose (Material 3)
 - **SDK Targets**: Min SDK 26 (Android 8.0), Target SDK 36 (Android 16)
-- **Design & Parsing**: Strategy Pattern for multi-service parsing, zero-network local decoding
+- **Design & Parsing**: Strategy Pattern for multi-service parsing, local decoding with optional Mapy short-link resolution in `online`
 - **Zero Dependencies**: 100% independent of external analytics/ad SDKs in FOSS flavor
 
 📖 **Deep Dive:** Read the full [Architecture & Technical Design](docs/ARCHITECTURE.md) for sequence flows, parser details, and kernel-level privacy verification.

@@ -1,6 +1,4 @@
-import os
-import json
-import sys
+"""Listing data for local metadata generation; Google Play publishing is disabled."""
 
 LISTINGS = {
     'en-US': {
@@ -645,60 +643,5 @@ MapFlip dibuat untuk pengguna Android yang sering menerima tautan Apple Maps dar
     },
 }
 
-def main():
-    package_name = 'de.goork.mapflip'
-    service_account_env = os.environ.get('SERVICE_ACCOUNT_JSON')
-    
-    if not service_account_env:
-        print("Error: SERVICE_ACCOUNT_JSON environment variable is not set.")
-        sys.exit(1)
-        
-    try:
-        from google.oauth2 import service_account
-        from googleapiclient.discovery import build
-    except ImportError:
-        print("Installing required google-api-python-client and google-auth...")
-        import subprocess
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "google-api-python-client", "google-auth"])
-        from google.oauth2 import service_account
-        from googleapiclient.discovery import build
-
-    try:
-        service_account_info = json.loads(service_account_env)
-        credentials = service_account.Credentials.from_service_account_info(
-            service_account_info,
-            scopes=['https://www.googleapis.com/auth/androidpublisher']
-        )
-
-        service = build('androidpublisher', 'v3', credentials=credentials)
-
-        print(f"Creating new edit session for package: {package_name}...")
-        edit = service.edits().insert(packageName=package_name, body={}).execute()
-        edit_id = edit['id']
-        print(f"Edit session created: {edit_id}")
-
-        for locale, listing in LISTINGS.items():
-            print(f"Updating Store Listing for locale: '{locale}'...")
-            service.edits().listings().update(
-                packageName=package_name,
-                editId=edit_id,
-                language=locale,
-                body={
-                    'language': locale,
-                    'title': listing['title'],
-                    'shortDescription': listing['shortDescription'],
-                    'fullDescription': listing['fullDescription']
-                }
-            ).execute()
-            print(f"✅ Store Listing updated for {locale}")
-
-        print("Committing edit session to Google Play...")
-        service.edits().commit(packageName=package_name, editId=edit_id).execute()
-        print(f"🚀 All {len(LISTINGS)} Play Store listings updated successfully!")
-
-    except Exception as e:
-        print(f"❌ Error updating Play Store listings: {e}")
-        sys.exit(1)
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    raise SystemExit("Google Play publishing is disabled in this fork.")

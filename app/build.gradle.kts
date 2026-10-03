@@ -19,9 +19,9 @@ val aptabaseKey: String = System.getenv("APTABASE_KEY")
 val aptabaseHost: String = System.getenv("APTABASE_HOST")
     ?: keystoreProperties.getProperty("aptabaseHost", "https://telemetry-apps.goork.de")
 
-val appVersion = "1.3.2"
+val appVersion = "1.4.0-alpha.1"
 
-val appVersionCode = 315028
+val appVersionCode = 315029
 
 android {
     namespace = "de.goork.mapflip"
@@ -31,8 +31,8 @@ android {
         applicationId = "de.goork.mapflip"
         minSdk = 26
         targetSdk = 36
-        versionCode = 315028
-        versionName = "1.3.2"
+        versionCode = appVersionCode
+        versionName = appVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -79,6 +79,13 @@ android {
 
     flavorDimensions.add("distribution")
     productFlavors {
+        create("online") {
+            dimension = "distribution"
+            applicationIdSuffix = ".online"
+            versionNameSuffix = "-online"
+            buildConfigField("String", "APTABASE_KEY", "\"\"")
+            buildConfigField("String", "APTABASE_HOST", "\"\"")
+        }
         create("play") {
             dimension = "distribution"
             buildConfigField("String", "APTABASE_KEY", "\"$aptabaseKey\"")

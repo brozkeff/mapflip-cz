@@ -134,6 +134,19 @@
                 <data android:scheme="https" android:host="goo.gl" android:pathPrefix="/maps" />
             </intent-filter>
 
+            <!-- Mapy.com and the former Mapy.cz domain, including short links -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:scheme="http" />
+                <data android:host="mapy.com" />
+                <data android:host="www.mapy.com" />
+                <data android:host="mapy.cz" />
+                <data android:host="www.mapy.cz" />
+            </intent-filter>
+
             <!-- 8. geo: Scheme Links -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
