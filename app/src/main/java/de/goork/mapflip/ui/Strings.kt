@@ -137,7 +137,11 @@ object Strings {
             }
         }
         val effectivePrivacyNote: String
-            get() = if (de.goork.mapflip.BuildConfig.FLAVOR == "play" && privacyNotePlay.isNotBlank()) privacyNotePlay else privacyNote
+            get() = when {
+                de.goork.mapflip.BuildConfig.FLAVOR == "online" -> "Mapy.com link resolution uses the internet. No analytics or tracking."
+                de.goork.mapflip.BuildConfig.FLAVOR == "play" && privacyNotePlay.isNotBlank() -> privacyNotePlay
+                else -> privacyNote
+            }
 
         fun testButtonLabel(targetApp: de.goork.mapflip.navigation.TargetNavigationApp): String {
             val appName = when (targetApp) {

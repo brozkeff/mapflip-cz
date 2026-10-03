@@ -1,9 +1,11 @@
 # MapFlip
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Google Play](https://img.shields.io/badge/Google_Play-Available-green.svg)](https://play.google.com/store/apps/details?id=de.goork.mapflip)
-[![F-Droid](https://img.shields.io/badge/F--Droid-Available-blue.svg)](https://f-droid.org/packages/de.goork.mapflip/)
-[![Build Status](https://github.com/thefraggle/mapflip/actions/workflows/android-release.yml/badge.svg)](https://github.com/thefraggle/mapflip/actions/workflows/android-release.yml)
+[![GitHub Releases](https://img.shields.io/badge/GitHub-Releases-blue.svg)](https://github.com/brozkeff/mapflip-cz/releases)
+
+This personal-use fork of [the original MapFlip repository](https://github.com/thefraggle/mapflip) adds support for Seznam.cz's Mapy.com / former Mapy.cz. Download this fork's APKs from [brozkeff/mapflip-cz releases](https://github.com/brozkeff/mapflip-cz/releases).
+
+The `1.4.0-alpha.1` online prerelease was successfully tested manually on a Motorola Moto G85 running Android 16.
 
 > **No more clunky web previews or broken map links on Android.**  
 > MapFlip is a lightweight Android utility that intercepts map links and seamlessly redirects them directly into your favorite navigation app.
@@ -36,6 +38,7 @@ Set it up once, and it works invisibly in the background.
   - **Yandex Maps** (`yandex.com/maps`, `maps.yandex.ru`)
   - **Waze** (`waze.com/ul`, `waze.com/live-map`)
   - **DuckDuckGo Maps** (`duckduckgo.com/?q=...&iaxm=maps`)
+  - **Mapy.com / Mapy.cz** (Seznam.cz): coordinate, search, and documented route URLs; `/s/...` short links resolve in the separate `online` build.
   - **Google Plus Codes** (100% offline Base20 decoding)
   - **Direct GPS Coordinates** (RFC 5870 `geo:`, decimal & DMS)
 - 🎯 **Configurable Target Apps** – Route destinations directly to 12 navigation apps:
@@ -61,13 +64,14 @@ Set it up once, and it works invisibly in the background.
 - 🔒 **Privacy-First Architecture**:
   - **FOSS Flavor**: 100% offline, zero internet permission in manifest (`android.permission.INTERNET` not declared), zero tracking, zero ads.
   - **Play Flavor**: Minimal anonymous telemetry via self-hosted Aptabase (app version, OS, event names; zero personal data or location coordinates).
+  - **Online Flavor**: No telemetry; internet access only for Mapy link redirects. Installs alongside FOSS as `de.goork.mapflip.online`.
 - 🌍 **20 Languages + Auto (RTL supported)** – English, German, Spanish, French, Italian, Japanese, Dutch, Danish, Norwegian, Polish, Portuguese (Brazil & Portugal), Swedish, Turkish, Korean, Simplified Chinese, Traditional Chinese, Arabic (RTL), Russian, and Indonesian.
 
 ---
 
 ## 🔧 How It Works
 
-1. Install MapFlip from Google Play, F-Droid, or GitHub Releases.
+1. Install the online APK from [this fork's GitHub Releases](https://github.com/brozkeff/mapflip-cz/releases).
 2. Open the app and tap **"Open Settings"** (or follow the in-app Setup Guide).
 3. Under *Open by default* (Standardmäßig öffnen), enable link handling for the supported map domains.
 4. Select your preferred navigation app in MapFlip settings (or keep Google Maps as default).
@@ -77,17 +81,24 @@ Set it up once, and it works invisibly in the background.
 
 ## 📥 Download
 
-- **Google Play:** [Get it on Google Play](https://play.google.com/store/apps/details?id=de.goork.mapflip)
-- **F-Droid:** [Get it on F-Droid](https://f-droid.org/packages/de.goork.mapflip/)
-- **GitHub:** Direct APK download from [Releases](https://github.com/thefraggle/mapflip/releases)
+- **GitHub:** Download this fork's APKs from [Releases](https://github.com/brozkeff/mapflip-cz/releases), including the [Mapy.com online prerelease](https://github.com/brozkeff/mapflip-cz/releases/tag/mapy-v1.4.0-alpha.1).
 
 ---
 
 ## 🛠️ Build & Development
 
-The project is split into two flavors:
+See [macOS Java, Kotlin, and emulator setup](docs/DEVELOPMENT.md) for Homebrew installation and a local Android 16 virtual device.
+
+Google Play uploads and store-listing publishing are disabled in this fork. Prereleases are published explicitly to GitHub with installable APKs.
+
+The project is split into three flavors:
 - `foss` – 100% open source, zero permissions, independent of Google services.
 - `play` – Google Play release flavor with rating prompts and self-hosted privacy-focused telemetry.
+- `online` – Separate network-enabled target for Mapy.com / former Mapy.cz short links, without telemetry. F-Droid continues to use `foss`.
+
+Build the network-enabled APK with `./gradlew :app:assembleOnlineDebug` (or `assembleOnlineRelease`). Direct Mapy coordinates (`x`/`y`, `source=coor&id=lon,lat`, `center=lon,lat`), searches, and `/fnc/v1/route` endpoints parse offline in all flavors. Opening a short link in `online` follows bounded HTTPS redirects on Mapy hosts. Unsupported place IDs, encoded legacy routes, routes with waypoints, expired links, and resolution failures open the original URL in a browser; map-center coordinates are never substituted for a selected place. Clipboard and link-tester launches use the same resolver; previews do not make network requests.
+
+Reference: [Mapy URL formats](https://developer.mapy.com/cs/dalsi-vyuziti-mapy-cz/url-mapy-cz/) and [short-link sharing](https://help.mapy.com/tools/print-save-share/).
 
 Build the FOSS release APK locally:
 ```bash
@@ -105,12 +116,18 @@ Run unit tests:
 
 - **UI & Runtime**: Kotlin & Jetpack Compose (Material 3)
 - **SDK Targets**: Min SDK 26 (Android 8.0), Target SDK 36 (Android 16)
-- **Design & Parsing**: Strategy Pattern for multi-service parsing, zero-network local decoding
+- **Design & Parsing**: Strategy Pattern for multi-service parsing, local decoding with optional Mapy short-link resolution in `online`
 - **Zero Dependencies**: 100% independent of external analytics/ad SDKs in FOSS flavor
 
 📖 **Deep Dive:** Read the full [Architecture & Technical Design](docs/ARCHITECTURE.md) for sequence flows, parser details, and kernel-level privacy verification.
 
 ---
+
+## Contributors
+
+- **Daniel Notthoff** — original MapFlip author; [original repository](https://github.com/thefraggle/mapflip).
+- **Martin Malec ([brozkeff](https://github.com/brozkeff))** — maintainer of this fork and its Mapy.com / Mapy.cz support.
+- [Original project contributors](https://github.com/thefraggle/mapflip/graphs/contributors).
 
 ## 📄 License
 

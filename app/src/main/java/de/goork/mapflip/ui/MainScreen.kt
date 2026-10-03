@@ -39,6 +39,9 @@ import de.goork.mapflip.analytics.Analytics
 import de.goork.mapflip.data.PreferencesRepository
 import de.goork.mapflip.navigation.NavigationIntentBuilder
 import de.goork.mapflip.parser.UniversalMapParser
+import de.goork.mapflip.parser.MapyMapsParser
+import de.goork.mapflip.parser.ParsedLocation
+import de.goork.mapflip.RedirectActivity
 import de.goork.mapflip.ui.components.*
 import de.goork.mapflip.util.ClipboardUtil
 import de.goork.mapflip.util.DomainStatusInfo
@@ -68,7 +71,9 @@ fun MainScreen(
     val convertedTargetUri = remember(testInputUrl, userPreferences.targetApp) {
         if (testInputUrl.isNotBlank()) {
             val loc = UniversalMapParser.parse(testInputUrl)
-            NavigationIntentBuilder.buildUriString(loc, userPreferences.targetApp)
+            if (MapyMapsParser.canParse(UniversalMapParser.extractMapUrl(testInputUrl) ?: testInputUrl) && loc is ParsedLocation.WebFallback)
+                loc.fallbackUrl
+            else NavigationIntentBuilder.buildUriString(loc, userPreferences.targetApp)
         } else ""
     }
 
@@ -201,9 +206,11 @@ fun MainScreen(
                                     val url = detectedClipboardUrl
                                     if (url != null) {
                                         val parsed = UniversalMapParser.parse(url)
-                                        val targetIntent = NavigationIntentBuilder.buildIntent(
+                                        val targetIntent = (if (MapyMapsParser.canParse(url)) {
+                                            Intent(context, RedirectActivity::class.java).setData(Uri.parse(url))
+                                        } else NavigationIntentBuilder.buildIntent(
                                             parsed, userPreferences.targetApp, context
-                                        ).apply {
+                                        )).apply {
                                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         }
                                         Analytics.trackEvent("clipboard_banner_clicked", mapOf(

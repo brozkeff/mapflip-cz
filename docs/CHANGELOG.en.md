@@ -1,3 +1,12 @@
+## 1.4.0-alpha.1 — 2026-10-03
+
+- Added Mapy.com / former Mapy.cz coordinate, search, and documented route URL parsing.
+- Added a separate no-telemetry `online` build for short-link resolution using bounded HTTPS GET requests with a mobile Chrome user agent. The F-Droid `foss` build remains offline.
+- Added Mapy interception, clipboard and link-tester launch support, plus macOS Java/Kotlin/Android emulator setup documentation.
+- Unsupported place IDs, encoded legacy routes, shared collections, and routes with waypoints retain browser fallback; full conversion remains planned.
+- Disabled Google Play binary uploads, removed the store-listing publishing workflow and standalone upload code, and retained listing data for local metadata generation.
+- Co-authored by Codex GPT 6.1 Sol.
+
 ## 1.3.2
 - Improved Localization: Full translations for all 20 languages and optimized Norwegian system language detection
 - Enhanced Stability: Robust geographic coordinate validation and safe fallback for malformed map links

@@ -42,6 +42,8 @@ import de.goork.mapflip.analytics.Analytics
 import de.goork.mapflip.navigation.NavigationIntentBuilder
 import de.goork.mapflip.navigation.TargetNavigationApp
 import de.goork.mapflip.parser.UniversalMapParser
+import de.goork.mapflip.parser.MapyMapsParser
+import de.goork.mapflip.RedirectActivity
 import de.goork.mapflip.ui.Strings
 import de.goork.mapflip.util.ClipboardUtil
 
@@ -274,7 +276,10 @@ fun LinkTesterCard(
                                     ))
                                     try {
                                         val loc = UniversalMapParser.parse(testInputUrl)
-                                        val intent = NavigationIntentBuilder.buildIntent(loc, targetApp, context).apply {
+                                        val extracted = UniversalMapParser.extractMapUrl(testInputUrl) ?: testInputUrl
+                                        val intent = (if (MapyMapsParser.canParse(extracted)) {
+                                            Intent(context, RedirectActivity::class.java).setData(Uri.parse(extracted))
+                                        } else NavigationIntentBuilder.buildIntent(loc, targetApp, context)).apply {
                                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         }
                                         context.startActivity(intent)
